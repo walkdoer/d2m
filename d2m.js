@@ -9,7 +9,10 @@
 var fs = require('fs'),
     colors = require('colors'),
     CHATSET_UTF_8 = 'utf8',
-    d2m = {};
+    d2m = {},
+    REGEXP_COMMENT = /\/\*{2}[\s\S]*?\*\//g;
+
+
 /**
  * All tags
  *
@@ -21,11 +24,18 @@ var fs = require('fs'),
  *  @constructor
  *
  */
-
-
 function parseFile(fileName, fileContent) {
     console.log(('-----------------' + fileName + '--------------').rainbow);
-    console.log(fileContent);
+    console.log(fileContent.grey.italic);
+    var commentArray = fileContent.match(REGEXP_COMMENT);
+    if (commentArray) {
+        commentArray.slice(0).forEach(function (comment) {
+            console.log('-------------------'.yellow);
+            console.log(comment.cyan);
+        });
+    } else {
+        console.warn('can\'t find comment in this file'.red);
+    }
 }
 
 
