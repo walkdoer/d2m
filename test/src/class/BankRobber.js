@@ -12,6 +12,8 @@ define(function (require, exports, module) {
     };
     /**
      * rob a bank
+     * @param {Bank} bank  the **bank** that the robber 
+     *                     is target @at
      * @return {Number} the money from the bank
      */
     BankRobber.prototype.rob = function (bank) {
@@ -21,11 +23,22 @@ define(function (require, exports, module) {
 
     /**
      * run away
+     * @param {Number} speed  run speed
      * @return {BankRobber} robber self
      */
-    BankRobber.prototype.run = function () {
+    BankRobber.prototype.run = function (speed) {
         // start run
         this.car.start();
+        return this;
+    };
+
+    /**
+     * go to sleep
+     * @private
+     * @return {BankRobber} robber self
+     */
+    BankRobber.prototype._sleep = function () {
+        //sleeping zZZ...
         return this;
     };
 

@@ -8,9 +8,10 @@
 'use strict';
 var fs = require('fs'),
     colors = require('colors'),
+    docParser = require('./docParser'),
     CHATSET_UTF_8 = 'utf8',
     d2m = {},
-    REGEXP_COMMENT = /\/\*{2}[\s\S]*?\*\//g;
+    RE_COMMENT = /\/\*{2}[\s\S]*?\*\//g;
 
 
 /**
@@ -27,19 +28,52 @@ var fs = require('fs'),
 function parseFile(fileName, fileContent) {
     console.log(('-----------------' + fileName + '--------------').rainbow);
     console.log(fileContent.grey.italic);
-    var commentArray = fileContent.match(REGEXP_COMMENT);
-    if (commentArray) {
-        commentArray.slice(0).forEach(function (comment) {
+    /*
+        [{
+            type: 'method', //doc type
+            description: 'method description',
+            params: [...], //method parameters
+            author: 'andrew',
+            email: 'example@mail.com'
+            private: true | false, // private method flag
+            public: true | false  //public method flag
+        }]
+    */
+    var parseResultObjectArray = null; //解析结果数组
+    var docBlockArray = fileContent.match(RE_COMMENT);
+    if (docBlockArray) {
+        parseResultObjectArray = [];
+        docBlockArray.forEach(function (comment) {
             console.log('-------------------'.yellow);
             console.log(comment.cyan);
+            parseResultObjectArray.push(docParser.parse(comment));
         });
     } else {
         console.warn('can\'t find comment in this file'.red);
     }
+    console.log(parseResultObjectArray);
+    return parseResultObjectArray;
 }
 
+function processFile(filePath, fileProcessor) {
+    var realPath = fs.realpathSync(filePath);
+    fs.readFile(filePath, CHATSET_UTF_8, function (err, data) {
+        console.log(('processing file ' + realPath).green);
+        if (err) {
+            throw err;
+        }
+        if (typeof fileProcessor === 'function') {
+            fileProcessor(filePath, data);
+        }
+    });
+}
 
 function processPath(path, fileProcessor) {
+    var stats = fs.statSync(path);
+    if (stats.isFile()) {
+        processFile(path, fileProcessor);
+        return;
+    }
     fs.readdir(path, function (err, files) {
         if (err) {
             throw err;
@@ -48,21 +82,10 @@ function processPath(path, fileProcessor) {
             //will not process the file start with "."  eg  .DS_Store
             if (itm.indexOf('.') === 0) { return; }
             var filePath = path + '/' + itm,
-                stats = fs.statSync(filePath),
-                realPath = fs.realpathSync(filePath);
-
+                stats = fs.statSync(filePath);
             if (stats.isFile()) {
-                fs.readFile(filePath, CHATSET_UTF_8, function (err, data) {
-                    console.log('processing file ' + realPath);
-                    if (err) {
-                        throw err;
-                    }
-                    if (typeof fileProcessor === 'function') {
-                        fileProcessor(itm, data);
-                    }
-                });
+                processFile(filePath, fileProcessor);
             } else if (stats.isDirectory()) {
-                console.log('processing directory ' + realPath);
                 processPath(filePath, fileProcessor);
             }
         });
