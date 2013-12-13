@@ -13,6 +13,11 @@ var RE_DESCRIPTION = /\/\*{2}\s*\*\s([\w\W]*?)(?=\*\s*@)/,
     RE_PARAM_DESCRIPTION = /^\s*.*{.*}\s*\b\w*\b\s*(.*)|\s*\*?\s*(.*)$/m;
 
 var docParser = {
+    /**
+      * get parameters of an document block
+     * @param  {String} docBlock document block
+     * @return {Array}    parametersArray
+     */
     getParams: function (docBlock) {
         var paramsStringArray = docBlock.match(RE_PARAM),
             paramsArray = null;
@@ -50,7 +55,11 @@ var docParser = {
         }
         return paramsArray;
     },
-
+    /**
+     * get description of an document block
+     * @param  {String} docBlock document block
+     * @return {String}          descript of document block
+     */
     getDescription: function (docBlock) {
         var desParseRes = docBlock.match(RE_DESCRIPTION),
             description;
@@ -68,16 +77,26 @@ var docParser = {
                 }
                 return line;
             });
-            splitLine = splitLine.filter(function (line, i) {
+            splitLine = splitLine.filter(function (line) {
                 return !!line;
             });
             return splitLine.join('\n');
         }
     },
+    /**
+     * get description of an document block
+     * @param  {String} docBlock document block
+     * @return {String} type of document block it may class|method
+     */
+    getDocType: function (docBlock) {
+        var hasConstructor = ~docBlock.indexOf('@constructor');
+        return hasConstructor ? 'class' : 'method';
+    },
     parse: function (docBlock) {
         var description = docParser.getDescription(docBlock),
             params = docParser.getParams(docBlock),
             result = {
+                type: docParser.getDocType(docBlock),
                 description: description
             };
         if (params) {
