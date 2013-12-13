@@ -12,6 +12,8 @@ define(function (require, exports, module) {
     };
     /**
      * rob a bank
+     *         and get all the money
+     *                 test line**
      * @param {Bank} bank  the **bank** that the robber 
      *                     is target @at
      * @return {Number} the money from the bank

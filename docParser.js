@@ -6,14 +6,15 @@
  * Licensed under the MIT license.
  */
 'use strict';
-var RE_PARAM = /@param[\w\W]*?(?=\s*\*\s*@)/g,
+var RE_DESCRIPTION = /\/\*{2}\s*\*\s([\w\W]*?)(?=\*\s*@)/,
+    RE_PARAM = /@param[\w\W]*?(?=\s*\*\s*@)/g,
     RE_PARAM_TYPE = /{(.*)}/,
     RE_PARAM_NAME = /{.*}\s*(\b\w*\b)/,
     RE_PARAM_DESCRIPTION = /^\s*.*{.*}\s*\b\w*\b\s*(.*)|\s*\*?\s*(.*)$/m;
 
 var docParser = {
-    getParams: function (doc) {
-        var paramsStringArray = doc.match(RE_PARAM),
+    getParams: function (docBlock) {
+        var paramsStringArray = docBlock.match(RE_PARAM),
             paramsArray = null;
         if (paramsStringArray) {
             paramsArray = [];
@@ -49,9 +50,36 @@ var docParser = {
         }
         return paramsArray;
     },
-    parse: function (comment) {
-        var params = docParser.getParams(comment),
-            result = {};
+
+    getDescription: function (docBlock) {
+        var desParseRes = docBlock.match(RE_DESCRIPTION),
+            description;
+        if (desParseRes && desParseRes[1]) {
+            description = desParseRes[1];
+            console.log(description.green);
+            var splitLine = description.split('\n');
+            splitLine = splitLine.map(function (line, i) {
+                if (i > 0) {
+                    line = line.trim();
+                    line = line.replace(/^\*/, '');
+                }
+                if (!line) {
+                    console.log('line is empty'.red);
+                }
+                return line;
+            });
+            splitLine = splitLine.filter(function (line, i) {
+                return !!line;
+            });
+            return splitLine.join('\n');
+        }
+    },
+    parse: function (docBlock) {
+        var description = docParser.getDescription(docBlock),
+            params = docParser.getParams(docBlock),
+            result = {
+                description: description
+            };
         if (params) {
             result.params = params;
         }

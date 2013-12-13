@@ -69,11 +69,6 @@ function processFile(filePath, fileProcessor) {
 }
 
 function processPath(path, fileProcessor) {
-    var stats = fs.statSync(path);
-    if (stats.isFile()) {
-        processFile(path, fileProcessor);
-        return;
-    }
     fs.readdir(path, function (err, files) {
         if (err) {
             throw err;
@@ -112,7 +107,14 @@ d2m.config = function (options) {
  */
 d2m.generate = function () {
     console.log('generate...'.green);
-    processPath(d2m.srcDir, parseFile);
+    var stats = fs.statSync(d2m.srcDir);
+    if (stats.isFile()) {
+        processFile(d2m.srcDir, parseFile);
+    } else if (stats.isDirectory()) {
+        processPath(d2m.srcDir, parseFile);
+    } else {
+        console.error('src config is wrong, please check');
+    }
 };
 
 exports.config = d2m.config;
