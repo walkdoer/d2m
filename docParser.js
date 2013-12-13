@@ -92,13 +92,28 @@ var docParser = {
         var hasConstructor = ~docBlock.indexOf('@constructor');
         return hasConstructor ? 'class' : 'method';
     },
+    /**
+     * is a method private or public
+     * @param  {String} docBlock document block
+     * @return {String} 
+     */
+    getMethodCharactor: function (docBlock) {
+        var isPrivateMethod = ~docBlock.indexOf('@private');
+        return isPrivateMethod ? 'private' : 'public';
+    },
     parse: function (docBlock) {
         var description = docParser.getDescription(docBlock),
             params = docParser.getParams(docBlock),
+            methodCharactor = docParser.getMethodCharactor(docBlock),
             result = {
                 type: docParser.getDocType(docBlock),
                 description: description
             };
+        if (methodCharactor === 'private') {
+            result.private = true;
+        } else {
+            result.public = true;
+        }
         if (params) {
             result.params = params;
         }
