@@ -10,8 +10,7 @@ var fs = require('fs'),
     colors = require('colors'),
     docParser = require('./docParser'),
     CHATSET_UTF_8 = 'utf8',
-    d2m = {},
-    RE_COMMENT = /\/\*{2}[\s\S]*?\*\//g;
+    d2m = {};
 
 
 /**
@@ -28,31 +27,8 @@ var fs = require('fs'),
 function parseFile(fileName, fileContent) {
     console.log(('-----------------' + fileName + '--------------').rainbow);
     console.log(fileContent.grey.italic);
-    /*
-        [{
-            type: 'method', //doc type
-            description: 'method description',
-            params: [...], //method parameters
-            author: 'andrew',
-            email: 'example@mail.com'
-            private: true | false, // private method flag
-            public: true | false  //public method flag
-        }]
-    */
-    var parseResultObjectArray = null; //解析结果数组
-    var docBlockArray = fileContent.match(RE_COMMENT);
-    if (docBlockArray) {
-        parseResultObjectArray = [];
-        docBlockArray.forEach(function (comment) {
-            console.log('-------------------'.yellow);
-            console.log(comment.cyan);
-            parseResultObjectArray.push(docParser.parse(comment));
-        });
-    } else {
-        console.warn('can\'t find comment in this file'.red);
-    }
-    console.log(parseResultObjectArray);
-    return parseResultObjectArray;
+    var parseResult = docParser.parse(fileName, fileContent);
+    console.log(parseResult);
 }
 
 function processFile(filePath, fileProcessor) {

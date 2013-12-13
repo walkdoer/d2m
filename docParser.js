@@ -6,11 +6,13 @@
  * Licensed under the MIT license.
  */
 'use strict';
-var RE_DESCRIPTION = /\/\*{2}\s*\*\s([\w\W]*?)(?=\*\s*@)/,
+var RE_DOC_BLOCK = /\/\*{2}[\s\S]*?\*\//g,
+    RE_DESCRIPTION = /\/\*{2}\s*\*\s([\w\W]*?)(?=\*\s*@)/,
     RE_PARAM = /@param[\w\W]*?(?=\s*\*\s*@)/g,
     RE_PARAM_TYPE = /{(.*)}/,
     RE_PARAM_NAME = /{.*}\s*(\b\w*\b)/,
-    RE_PARAM_DESCRIPTION = /^\s*.*{.*}\s*\b\w*\b\s*(.*)|\s*\*?\s*(.*)$/m;
+    RE_PARAM_DESCRIPTION = /^\s*.*{.*}\s*\b\w*\b\s*(.*)|\s*\*?\s*(.*)$/m,
+    RE_METHOD_NAME = /\/*\*{2}[\w\W]*\*\/[\w\W]*function\s*([\w\d])?\(([[\w\W]*)\)/;
 
 var docParser = {
     /**
@@ -101,7 +103,7 @@ var docParser = {
         var isPrivateMethod = ~docBlock.indexOf('@private');
         return isPrivateMethod ? 'private' : 'public';
     },
-    parse: function (docBlock) {
+    parseDocBlock: function (docBlock) {
         var description = docParser.getDescription(docBlock),
             params = docParser.getParams(docBlock),
             methodCharactor = docParser.getMethodCharactor(docBlock),
@@ -118,6 +120,32 @@ var docParser = {
             result.params = params;
         }
         return result;
+    },
+    parse: function (fileName, fileContent) {
+        /*
+            [{
+                type: 'method', //doc type
+                description: 'method description',
+                params: [...], //method parameters
+                author: 'andrew',
+                email: 'example@mail.com'
+                private: true | false, // private method flag
+                public: true | false  //public method flag
+            }]
+        */
+        var parseResultObjectArray = null; //解析结果数组
+        var docBlockArray = fileContent.match(RE_DOC_BLOCK);
+        if (docBlockArray) {
+            parseResultObjectArray = [];
+            docBlockArray.forEach(function (comment) {
+                console.log('-------------------'.yellow);
+                console.log(comment.cyan);
+                parseResultObjectArray.push(docParser.parseDocBlock(comment));
+            });
+        } else {
+            console.warn('can\'t find comment in this file'.red);
+        }
+        return parseResultObjectArray;
     }
 };
 
