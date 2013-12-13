@@ -6,14 +6,20 @@
  * Licensed under the MIT license.
  */
 'use strict';
-var RE_DOC_BLOCK = /\/\*{2}[\s\S]*?\*\//g,
+var RE_VALID_FUNCTION_NAME = /^[$A-Z_][0-9A-Z_$]*$/i,
+    RE_DOC_BLOCK = /\/\*{2}[\s\S]*?\*\//g,
     RE_DESCRIPTION = /\/\*{2}\s*\*\s([\w\W]*?)(?=\*\s*@)/,
+    RE_METHOD_NAME_TYPE1 = /^[^(){}]*?\b(\w+)\b\s*=\s*function\s*\([\w\W]*?\)\s*{[\w\W]*?}/,
+    RE_METHOD_NAME_TYPE2 = /[\w\W]*?function?\s*(\w+)\s*\([\w\W]*?\)\s*{/,
     RE_PARAM = /@param[\w\W]*?(?=\s*\*\s*@)/g,
     RE_PARAM_TYPE = /{(.*)}/,
     RE_PARAM_NAME = /{.*}\s*(\b\w*\b)/,
-    RE_PARAM_DESCRIPTION = /^\s*.*{.*}\s*\b\w*\b\s*(.*)|\s*\*?\s*(.*)$/m,
-    RE_METHOD_NAME = /\/*\*{2}[\w\W]*\*\/[\w\W]*function\s*([\w\d])?\(([[\w\W]*)\)/;
+    RE_PARAM_DESCRIPTION = /^\s*.*{.*}\s*\b\w*\b\s*(.*)|\s*\*?\s*(.*)$/m;
 
+
+var isValidFunctionName = function (name) {
+    return RE_VALID_FUNCTION_NAME.test(name);
+};
 var docParser = {
     /**
       * get parameters of an document block
@@ -103,11 +109,27 @@ var docParser = {
         var isPrivateMethod = ~docBlock.indexOf('@private');
         return isPrivateMethod ? 'private' : 'public';
     },
+    getMethodName: function (docBlock) {
+        var index = docParser.fileContent.indexOf(docBlock),
+            content = docParser.fileContent.substr(index + docBlock.length);
+        //console.log('-------' + content.red + '-------');
+        var methodNameParseRes = content.match(RE_METHOD_NAME_TYPE1);
+        if (!methodNameParseRes || methodNameParseRes.length !== 2 || 
+            !isValidFunctionName(methodNameParseRes[1])) {
+            methodNameParseRes = content.match(RE_METHOD_NAME_TYPE2);
+        }
+        if (isValidFunctionName(methodNameParseRes[1])) {
+            console.log(methodNameParseRes[1].rainbow);
+        } else {
+            console.error('invalid method name'.red);
+        }
+    },
     parseDocBlock: function (docBlock) {
         var description = docParser.getDescription(docBlock),
             params = docParser.getParams(docBlock),
             methodCharactor = docParser.getMethodCharactor(docBlock),
             result = {
+                name: docParser.getMethodName(docBlock),
                 type: docParser.getDocType(docBlock),
                 description: description
             };
@@ -135,15 +157,16 @@ var docParser = {
         */
         var parseResultObjectArray = null; //解析结果数组
         var docBlockArray = fileContent.match(RE_DOC_BLOCK);
+        docParser.fileContent = fileContent;
         if (docBlockArray) {
             parseResultObjectArray = [];
-            docBlockArray.forEach(function (comment) {
+            docBlockArray.forEach(function (docBlock) {
                 console.log('-------------------'.yellow);
-                console.log(comment.cyan);
-                parseResultObjectArray.push(docParser.parseDocBlock(comment));
+                console.log(docBlock.cyan);
+                parseResultObjectArray.push(docParser.parseDocBlock(docBlock));
             });
         } else {
-            console.warn('can\'t find comment in this file'.red);
+            console.warn('can\'t find docBlock in this file'.red);
         }
         return parseResultObjectArray;
     }

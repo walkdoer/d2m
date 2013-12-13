@@ -1,5 +1,13 @@
 define(function (require, exports, module) {
     'use strict';
+
+    /**
+     * try to sleep
+     * @return {Boolean} true/false
+     */
+    function tryToSleep() {
+        return false;
+    }
     /**
      * Bank Robber
      * @Class BankRobber
