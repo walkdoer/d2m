@@ -12,7 +12,7 @@ var configObj = {};
 exports.init = function (userConfig) {
     for (var key in userConfig) {
         if (userConfig.hasOwnProperty(key)) {
-            configObj = userConfig[key];
+            configObj[key] = userConfig[key];
         }
     }
 };

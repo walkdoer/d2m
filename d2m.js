@@ -26,12 +26,12 @@ var fs = require('fs'),
  *  @constructor
  *
  */
-function parseFile(fileName, fileContent) {
-    console.log(('-----------------' + fileName + '--------------').rainbow);
+function parseFile(filePath, fileContent) {
+    console.log(('-----------------' + filePath + '--------------').rainbow);
     console.log(fileContent.grey.italic);
-    var parseResult = docParser.parse(fileName, fileContent);
+    var parseResult = docParser.parse(filePath, fileContent);
     console.log(parseResult);
-    md(fileName, parseResult);
+    md.md(filePath, parseResult);
 }
 
 function processFile(filePath, fileProcessor) {
@@ -75,9 +75,22 @@ function processPath(path, fileProcessor) {
  * @return {this}
  */
 d2m.config = function (options) {
+    var src = options.src,
+        output = options.output,
+        srcStats = fs.statSync(src),
+        outputStats = fs.statSync(output);
+
+    if (srcStats.isDirectory()) {
+        src = new String(src),
+        src += src[src.length] === '/' ? '' : '/';
+    }
+    if (outputStats.isDirectory()) {
+        output = new String(output);
+        output += output[output.length] === '/' ? '' : '/';
+    }
     config.init({
-        srcDir : options.src,
-        outputDir : options.output
+        srcDir : src,
+        outputDir : output
     });
     return d2m;
 };
