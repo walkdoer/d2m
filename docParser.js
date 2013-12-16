@@ -17,20 +17,33 @@ var RE_VALID_FUNCTION_NAME = /^[$A-Z_][0-9A-Z_$]*$/i,
     RE_PARAM_DESCRIPTION = /^\s*.*{.*}\s*\b\w*\b\s*(.*)|\s*\*?\s*(.*)$/m,
     RE_MODULE_NAME = /@module\s*\b([\w\d]*)\b/,
     /** Type Name */
-    TYPE_MODULE = 'module';
+    TYPE_MODULE = 'module',
+    //plugin path
+    PLUGIN_PATH = './plugin/';
 
+var fs = require('fs');
 
 var isValidFunctionName = function (name) {
     return RE_VALID_FUNCTION_NAME.test(name);
 };
+
+
+var helper = {
+    getTargetFromComment: function (comment, regexp, index) {
+        var targetParseRes = comment.match(regexp);
+        if (targetParseRes) {
+            return targetParseRes[index || 1];
+        }
+    }
+};
 var docParser = {
     /**
       * get parameters of an document block
-     * @param  {String} docBlock document block
+     * @param  {String} comment document comment block
      * @return {Array}    parametersArray
      */
-    _getParams: function (docBlock) {
-        var paramsStringArray = docBlock.match(RE_PARAM),
+    _getParams: function (comment) {
+        var paramsStringArray = comment.match(RE_PARAM),
             paramsArray = null;
         if (paramsStringArray) {
             paramsArray = [];
@@ -68,11 +81,11 @@ var docParser = {
     },
     /**
      * get description of an document block
-     * @param  {String} docBlock document block
+     * @param  {String} comment document block
      * @return {String}          descript of document block
      */
-    _getDescription: function (docBlock) {
-        var desParseRes = docBlock.match(RE_DESCRIPTION),
+    _getDescription: function (comment) {
+        var desParseRes = comment.match(RE_DESCRIPTION),
             description;
         if (desParseRes && desParseRes[1]) {
             description = desParseRes[1];
@@ -96,26 +109,26 @@ var docParser = {
     },
     /**
      * get description of an document block
-     * @param  {String} docBlock document block
+     * @param  {String} comment document block
      * @return {String} type of document block it may class|method
      */
-    _getDocType: function (docBlock) {
-        var hasConstructor = ~docBlock.indexOf('@constructor'),
-            isModule =  ~docBlock.indexOf('@module');
+    _getDocType: function (comment) {
+        var hasConstructor = ~comment.indexOf('@constructor'),
+            isModule =  ~comment.indexOf('@module');
         return isModule ? 'module' : hasConstructor ? 'class' : 'method';
     },
     /**
      * is a method private or public
-     * @param  {String} docBlock document block
+     * @param  {String} comment document block
      * @return {String} 
      */
-    _getMethodCharactor: function (docBlock) {
-        var isPrivateMethod = ~docBlock.indexOf('@private');
+    _getMethodCharactor: function (comment) {
+        var isPrivateMethod = ~comment.indexOf('@private');
         return isPrivateMethod ? 'private' : 'public';
     },
-    _getMethodName: function (docBlock) {
-        var index = docParser.fileContent.indexOf(docBlock),
-            content = docParser.fileContent.substr(index + docBlock.length);
+    _getMethodName: function (comment) {
+        var index = docParser.fileContent.indexOf(comment),
+            content = docParser.fileContent.substr(index + comment.length);
         //console.log('-------' + content.red + '-------');
         var methodNameParseRes = content.match(RE_METHOD_NAME_TYPE1);
         if (!methodNameParseRes || methodNameParseRes.length !== 2 || 
@@ -132,27 +145,20 @@ var docParser = {
     _getBelong: function () {
         return '';
     },
-    _getModuleName: function (docBlock) {
-        return docParser._getTargetFromDocBlock(docBlock, RE_MODULE_NAME);
+    _getModuleName: function (comment) {
+        return helper.getTargetFromComment(comment, RE_MODULE_NAME);
     },
-    _getTargetFromDocBlock: function (docBlock, regexp, index) {
-        var targetParseRes = docBlock.match(regexp);
-        if (targetParseRes) {
-            return targetParseRes[index || 1];
-        }
-    },
-    parseDocBlock: function (docBlock) {
-        var description = docParser._getDescription(docBlock),
-            params = docParser._getParams(docBlock),
-            methodCharactor = docParser._getMethodCharactor(docBlock),
+    parseDocBlock: function (comment) {
+        var description = docParser._getDescription(comment),
+            params = docParser._getParams(comment),
+            methodCharactor = docParser._getMethodCharactor(comment),
             result = {
-                name: docParser._getMethodName(docBlock),
-                type: docParser._getDocType(docBlock),
-                belong: docParser._getBelong(docBlock),
+                name: docParser._getMethodName(comment),
+                type: docParser._getDocType(comment),
                 description: description
             };
         if (result.type === TYPE_MODULE) {
-            result.name = docParser._getModuleName(docBlock);
+            result.name = docParser._getModuleName(comment);
         }
         if (methodCharactor === 'private') {
             result.private = true;
@@ -162,7 +168,48 @@ var docParser = {
         if (params) {
             result.params = params;
         }
+
+        //plugin parse result
+        var parseResultArray = docParser.pluginParse(comment);
+        parseResultArray.forEach(function (pluginRes) {
+            var value;
+            for (var key in pluginRes) {
+                value = pluginRes[key];
+                if (pluginRes.hasOwnProperty(key) && value) {
+                    result[key] = value;
+                }
+            }
+        });
         return result;
+    },
+    /**
+     * read plugin file and excute
+     * @param  {String} comment  document comment
+     * @return {Array}  plugin parse result array
+     */
+    pluginParse: function (comment) {
+        var parseResult = [];
+        var files = fs.readdirSync(PLUGIN_PATH);
+        files.forEach(function (itm) {
+            if (itm.indexOf('.') === 0) {
+                return;
+            }
+            //if it's a javascript file
+            if (/^.*.js$/.test(itm)) {
+                var plugin = require(PLUGIN_PATH + itm);
+                if (!plugin.handlers) {
+                    console.error('has no handler in plugin/' + itm);
+                    return;
+                }
+                if (typeof plugin.handlers.beforParse === 'function') {
+                    comment = plugin.handlers.beforParse(comment, helper) || comment;
+                }
+                if (typeof plugin.handlers.parse === 'function') {
+                    parseResult.push(plugin.handlers.parse(comment, helper));
+                }
+            }
+        });
+        return parseResult;
     },
     parse: function (fileName, fileContent) {
         /*
@@ -177,18 +224,18 @@ var docParser = {
             }]
         */
         var parseResultObjectArray = null; //解析结果数组
-        var docBlockArray = fileContent.match(RE_DOC_BLOCK);
+        var commentArray = fileContent.match(RE_DOC_BLOCK);
         docParser.fileContent = fileContent;
-        if (docBlockArray) {
+        if (commentArray) {
             parseResultObjectArray = [];
-            docBlockArray.forEach(function (docBlock) {
-                var resultObj = docParser.parseDocBlock(docBlock);
+            commentArray.forEach(function (comment) {
+                var resultObj = docParser.parseDocBlock(comment);
                 console.log('-------------------'.yellow);
-                console.log(docBlock.cyan);
+                console.log(comment.cyan);
                 parseResultObjectArray.push(resultObj);
             });
         } else {
-            console.warn('can\'t find docBlock in this file'.red);
+            console.warn('can\'t find comment in this file'.red);
         }
         return parseResultObjectArray;
     }
