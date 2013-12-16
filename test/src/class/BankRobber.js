@@ -1,3 +1,7 @@
+/**
+ * Bank Robber
+ * @module BankRobber
+ */
 define(function (require, exports, module) {
     'use strict';
 
@@ -24,6 +28,7 @@ define(function (require, exports, module) {
      *                 test line**
      * @param {Bank} bank  the **bank** that the robber 
      *                     is target @at
+     * @belong BankRobber
      * @return {Number} the money from the bank
      */
     BankRobber.prototype.rob = function (bank) {
@@ -34,6 +39,7 @@ define(function (require, exports, module) {
     /**
      * run away
      * @param {Number} speed  run speed
+     * @belong BankRobber
      * @return {BankRobber} robber self
      */
     BankRobber.prototype.run = function (speed) {
@@ -45,6 +51,7 @@ define(function (require, exports, module) {
     /**
      * go to sleep
      * @private
+     * @belong BankRobber
      * @return {BankRobber} robber self
      */
     BankRobber.prototype._sleep = function () {

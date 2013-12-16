@@ -14,7 +14,10 @@ var RE_VALID_FUNCTION_NAME = /^[$A-Z_][0-9A-Z_$]*$/i,
     RE_PARAM = /@param[\w\W]*?(?=\s*\*\s*@)/g,
     RE_PARAM_TYPE = /{(.*)}/,
     RE_PARAM_NAME = /{.*}\s*(\b\w*\b)/,
-    RE_PARAM_DESCRIPTION = /^\s*.*{.*}\s*\b\w*\b\s*(.*)|\s*\*?\s*(.*)$/m;
+    RE_PARAM_DESCRIPTION = /^\s*.*{.*}\s*\b\w*\b\s*(.*)|\s*\*?\s*(.*)$/m,
+    RE_MODULE_NAME = /@module\s*\b([\w\d]*)\b/,
+    /** Type Name */
+    TYPE_MODULE = 'module';
 
 
 var isValidFunctionName = function (name) {
@@ -26,7 +29,7 @@ var docParser = {
      * @param  {String} docBlock document block
      * @return {Array}    parametersArray
      */
-    getParams: function (docBlock) {
+    _getParams: function (docBlock) {
         var paramsStringArray = docBlock.match(RE_PARAM),
             paramsArray = null;
         if (paramsStringArray) {
@@ -68,7 +71,7 @@ var docParser = {
      * @param  {String} docBlock document block
      * @return {String}          descript of document block
      */
-    getDescription: function (docBlock) {
+    _getDescription: function (docBlock) {
         var desParseRes = docBlock.match(RE_DESCRIPTION),
             description;
         if (desParseRes && desParseRes[1]) {
@@ -96,20 +99,21 @@ var docParser = {
      * @param  {String} docBlock document block
      * @return {String} type of document block it may class|method
      */
-    getDocType: function (docBlock) {
-        var hasConstructor = ~docBlock.indexOf('@constructor');
-        return hasConstructor ? 'class' : 'method';
+    _getDocType: function (docBlock) {
+        var hasConstructor = ~docBlock.indexOf('@constructor'),
+            isModule =  ~docBlock.indexOf('@module');
+        return isModule ? 'module' : hasConstructor ? 'class' : 'method';
     },
     /**
      * is a method private or public
      * @param  {String} docBlock document block
      * @return {String} 
      */
-    getMethodCharactor: function (docBlock) {
+    _getMethodCharactor: function (docBlock) {
         var isPrivateMethod = ~docBlock.indexOf('@private');
         return isPrivateMethod ? 'private' : 'public';
     },
-    getMethodName: function (docBlock) {
+    _getMethodName: function (docBlock) {
         var index = docParser.fileContent.indexOf(docBlock),
             content = docParser.fileContent.substr(index + docBlock.length);
         //console.log('-------' + content.red + '-------');
@@ -119,20 +123,37 @@ var docParser = {
             methodNameParseRes = content.match(RE_METHOD_NAME_TYPE2);
         }
         if (isValidFunctionName(methodNameParseRes[1])) {
-            console.log(methodNameParseRes[1].rainbow);
+            return methodNameParseRes[1];
         } else {
             console.error('invalid method name'.red);
         }
+        return null;
+    },
+    _getBelong: function () {
+        return '';
+    },
+    _getModuleName: function (docBlock) {
+        return docParser._getTargetFromDocBlock(docBlock, RE_MODULE_NAME);
+    },
+    _getTargetFromDocBlock: function (docBlock, regexp, index) {
+        var targetParseRes = docBlock.match(regexp);
+        if (targetParseRes) {
+            return targetParseRes[index || 1];
+        }
     },
     parseDocBlock: function (docBlock) {
-        var description = docParser.getDescription(docBlock),
-            params = docParser.getParams(docBlock),
-            methodCharactor = docParser.getMethodCharactor(docBlock),
+        var description = docParser._getDescription(docBlock),
+            params = docParser._getParams(docBlock),
+            methodCharactor = docParser._getMethodCharactor(docBlock),
             result = {
-                name: docParser.getMethodName(docBlock),
-                type: docParser.getDocType(docBlock),
+                name: docParser._getMethodName(docBlock),
+                type: docParser._getDocType(docBlock),
+                belong: docParser._getBelong(docBlock),
                 description: description
             };
+        if (result.type === TYPE_MODULE) {
+            result.name = docParser._getModuleName(docBlock);
+        }
         if (methodCharactor === 'private') {
             result.private = true;
         } else {
@@ -161,9 +182,10 @@ var docParser = {
         if (docBlockArray) {
             parseResultObjectArray = [];
             docBlockArray.forEach(function (docBlock) {
+                var resultObj = docParser.parseDocBlock(docBlock);
                 console.log('-------------------'.yellow);
                 console.log(docBlock.cyan);
-                parseResultObjectArray.push(docParser.parseDocBlock(docBlock));
+                parseResultObjectArray.push(resultObj);
             });
         } else {
             console.warn('can\'t find docBlock in this file'.red);

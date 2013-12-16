@@ -17,8 +17,8 @@ var fs = require('fs'),
  * All tags
  *
  *  @param  {type}  name [descripttion]
- *  @author
- *  @email
+ *  @author [author name]
+ *  @email [example@example.com]
  *  @class
  *  @return
  *  @constructor
@@ -78,7 +78,7 @@ d2m.config = function (options) {
 };
 
 /**
- * 生成文档
+ * generate document
  * @return {[type]} [description]
  */
 d2m.generate = function () {
