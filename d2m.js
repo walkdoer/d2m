@@ -30,7 +30,9 @@ function parseFile(filePath, fileContent) {
     console.log(('-----------------' + filePath + '--------------').rainbow);
     console.log(fileContent.grey.italic);
     var parseResult = docParser.parse(filePath, fileContent);
-    console.log(parseResult);
+    console.log(JSON.stringify(parseResult).blue);
+    parseResult.filePath = filePath;
+    parseResult.createTime = new Date();
     md.md(filePath, parseResult);
 }
 

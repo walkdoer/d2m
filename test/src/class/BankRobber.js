@@ -5,8 +5,10 @@
 define(function (require, exports, module) {
     'use strict';
     /**
-     * Bank Robber hepler
+     * Bank Robber hepler, it will help the robber run away 
+     *      form the plolice and rob more money
      * @module M_BankRobber_helper
+     * @private
      */
     var helper = {
 
@@ -15,6 +17,7 @@ define(function (require, exports, module) {
      * try to sleep
      * @belong M_BankRobber
      * @return {Boolean} true/false
+     * @private
      */
     function tryToSleep() {
         return false;

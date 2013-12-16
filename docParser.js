@@ -258,13 +258,13 @@ var docParser = {
      */
     arrangeParseResult: function (parseResultArray) {
         var woods = {
-                'module': [],
-                'class': [],
-                'method': []
+                'moduleList': [],
+                'classList': [],
+                'methodList': []
             };
 
         parseResultArray.forEach(function (itm) {
-            var wood = woods[itm.type];
+            var wood = woods[itm.type + 'List'];
             if (wood) {
                 wood.push(itm);
             }
@@ -309,8 +309,8 @@ var DocArranger = {
         DocArranger.arrangeClass();
     },
     _getParent: function (methodItm) {
-        var classArray = DocArranger.woods.class,
-            moduleArray = DocArranger.woods.module,
+        var classArray = DocArranger.woods.classList,
+            moduleArray = DocArranger.woods.moduleList,
             moduleItm,
             classItm,
             len,
@@ -336,7 +336,7 @@ var DocArranger = {
         }
     },
     arrangeMethod: function () {
-        var methodArray = DocArranger.woods.method,
+        var methodArray = DocArranger.woods.methodList,
             parentItm;
         for (var i = 0, len = methodArray.length, methodItm; i < len; i++) {
             methodItm = methodArray[i];
@@ -353,7 +353,7 @@ var DocArranger = {
         }
     },
     arrangeClass : function () {
-        var classArray = DocArranger.woods.class,
+        var classArray = DocArranger.woods.classList,
             parentItm;
         for (var i = 0, len = classArray.length, classItm; i < len; i++) {
             classItm = classArray[i];

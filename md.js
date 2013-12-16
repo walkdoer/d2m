@@ -11,12 +11,6 @@ var fs = require('fs'),
     config = require('./config'),
     Mustache = require('mustache'),
     CHATSET_UTF_8 = 'utf8';
-
-function is(type) {
-    return function (docObject) {
-        return docObject.type === type;
-    };
-}
 /**
  * get filename from file path
  * @param  {String} filePath  file path
@@ -47,27 +41,21 @@ function loadTemplate(tplFileName, callback) {
     });
 }
 
-
-var isModule = is('module'),
-    isClass = is('class'),
-    isMethod = is('method');
 exports.md = function (filePath, docObject) {
     var fileName = getFileName(filePath) + '.md',
         docPath = config.get('outputDir'),
         fullFilePath = docPath + fileName;
-    fs.open(fullFilePath, 'w', function (err, fd) {
-        fs.write(fd, filePath, 0, CHATSET_UTF_8, function (err) {
-            if (err) {
+    loadTemplate('module.tpl', function (data) {
+        var content = Mustache.render(data, docObject);
+        fs.open(fullFilePath, 'w', function (err, fd) {
+            fs.write(fd, content, 0, CHATSET_UTF_8, function (err) {
+                if (err) {
+                    fs.closeSync(fd);
+                    throw err;
+                }
                 fs.closeSync(fd);
-                throw err;
-            }
-            fs.closeSync(fd);
-            console.log(('write file' + fullFilePath).green);
+                console.log(('write file' + fullFilePath).green);
+            });
         });
     });
-    if (isModule(docObject)) {
-        loadTemplate('module.tpl', function (data) {
-            Mustache.render(data, docObject);
-        });
-    }
 };
