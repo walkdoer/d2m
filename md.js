@@ -9,6 +9,7 @@
 var fs = require('fs'),
     colors = require('colors'),
     config = require('./config'),
+    Mustache = require('mustache'),
     CHATSET_UTF_8 = 'utf8';
 
 function is(type) {
@@ -16,7 +17,11 @@ function is(type) {
         return docObject.type === type;
     };
 }
-
+/**
+ * get filename from file path
+ * @param  {String} filePath  file path
+ * @return {String} filename without ext
+ */
 function getFileName(filePath) {
     var filePathArr = filePath.split('/'),
         fileName = filePathArr[filePathArr.length - 1],
@@ -24,6 +29,24 @@ function getFileName(filePath) {
     fileNameArr.splice(fileNameArr.length - 1, 1);
     return fileNameArr.join('.');
 }
+/**
+ * load template file
+ * @param  {String}   tplFileName  template file
+ * @param  {Function} callback success Call back
+ */
+function loadTemplate(tplFileName, callback) {
+    var tplPath = config.get('tplPath'),
+        filePath = tplPath + tplFileName;
+    fs.readFile(filePath, CHATSET_UTF_8, function (err, data) {
+        if (err) {
+            throw err;
+        }
+        if (typeof callback === 'function') {
+            callback(data);
+        }
+    });
+}
+
 
 var isModule = is('module'),
     isClass = is('class'),
@@ -43,5 +66,8 @@ exports.md = function (filePath, docObject) {
         });
     });
     if (isModule(docObject)) {
+        loadTemplate('module.tpl', function (data) {
+            Mustache.render(data, docObject);
+        });
     }
 };

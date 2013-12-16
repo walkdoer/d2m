@@ -211,42 +211,42 @@ var docParser = {
         });
         return parseResult;
     },
-    _arrangeModule: function (moduleArray, classArray, methodArray) {
-        moduleArray.forEach(function (mod) {
-            if (classArray) {
-                docParser._arrangeClass(classArray, methodArray, function (cls) {
-                    if (cls.belong === mod.name) {
-                        if (!mod.classes) {
-                            mod.classes = [];
-                        }
-                        mod.classes.push(cls);
-                    }
-                });
-            } else {
-                methodArray.forEach(function (method) {
-                    if (method.belong === mod.name) {
-                        if (!mod.methods) {
-                            mod.methods = [];
-                        }
-                        mod.methods.push(method);
-                    }
-                });
-            }
-        });
-    },
-    _arrangeClass: function (classArray, methodArray, process) {
-        classArray.forEach(function (cls) {
-            process && process(cls);
-            methodArray.forEach(function (method) {
-                if (method.belong === cls.name) {
-                    if (!cls.methods) {
-                        cls.methods = [];
-                    }
-                    cls.methods.push(method);
-                }
-            });
-        });
-    },
+    // _arrangeModule: function (moduleArray, classArray, methodArray) {
+    //     moduleArray.forEach(function (mod) {
+    //         if (classArray) {
+    //             docParser._arrangeClass(classArray, methodArray, function (cls) {
+    //                 if (cls.belong === mod.name) {
+    //                     if (!mod.classes) {
+    //                         mod.classes = [];
+    //                     }
+    //                     mod.classes.push(cls);
+    //                 }
+    //             });
+    //         } else {
+    //             methodArray.forEach(function (method) {
+    //                 if (method.belong === mod.name) {
+    //                     if (!mod.methods) {
+    //                         mod.methods = [];
+    //                     }
+    //                     mod.methods.push(method);
+    //                 }
+    //             });
+    //         }
+    //     });
+    // },
+    // _arrangeClass: function (classArray, methodArray, process) {
+    //     classArray.forEach(function (cls) {
+    //         process && process(cls);
+    //         methodArray.forEach(function (method) {
+    //             if (method.belong === cls.name) {
+    //                 if (!cls.methods) {
+    //                     cls.methods = [];
+    //                 }
+    //                 cls.methods.push(method);
+    //             }
+    //         });
+    //     });
+    // },
     /**
      * arrange parse result
      * Module
@@ -257,8 +257,7 @@ var docParser = {
      * @return {Array}
      */
     arrangeParseResult: function (parseResultArray) {
-        var arrangedResult,
-            woods = {
+        var woods = {
                 'module': [],
                 'class': [],
                 'method': []
@@ -270,34 +269,8 @@ var docParser = {
                 wood.push(itm);
             }
         });
-        var moduleArray = woods.module,
-            methodArray = woods.method,
-            classArray = woods.class;
-
-        if (moduleArray.length > 0) {
-            //have module and class
-            if (classArray.length > 0) {
-                docParser._arrangeModule(moduleArray, classArray, methodArray);
-            }
-            //has module but has no class
-            else {
-                docParser._arrangeModule(moduleArray, null, methodArray);
-            }
-            arrangedResult = moduleArray;
-        } 
-        //has no module
-        else {
-            //have no module but has class
-            if (classArray.length > 0) {
-                docParser._arrangeClass(classArray, methodArray);
-                arrangedResult = classArray;
-            }
-            //has no module and no class, don't need to arrange
-            else {
-                arrangedResult = parseResultArray;
-            }
-        }
-        return arrangedResult;
+        DocArranger.arrange(woods);
+        return woods;
     },
     parse: function (fileName, fileContent) {
         /*
@@ -329,4 +302,72 @@ var docParser = {
     }
 };
 
+var DocArranger = {
+    arrange : function (woods) {
+        DocArranger.woods = woods;
+        DocArranger.arrangeMethod();
+        DocArranger.arrangeClass();
+    },
+    _getParent: function (methodItm) {
+        var classArray = DocArranger.woods.class,
+            moduleArray = DocArranger.woods.module,
+            moduleItm,
+            classItm,
+            len,
+            i;
+        if (methodItm.belong) {
+            for (i = 0, len = classArray.length; i < len; i++) {
+                classItm = classArray[i];
+                if (methodItm.belong === classItm.name) {
+                    return classItm;
+                }
+            }
+            for (i = 0, len = moduleArray.length; i < len; i++) {
+                moduleItm = moduleArray[i];
+                if (methodItm.belong === moduleItm.name) {
+                    return moduleItm;
+                }
+            }
+            return null;
+        }
+        //no parent
+        else {
+            return null;
+        }
+    },
+    arrangeMethod: function () {
+        var methodArray = DocArranger.woods.method,
+            parentItm;
+        for (var i = 0, len = methodArray.length, methodItm; i < len; i++) {
+            methodItm = methodArray[i];
+            parentItm = DocArranger._getParent(methodItm);
+            if (parentItm) {
+                if (!parentItm.methods) {
+                    parentItm.methods = [];
+                }
+                parentItm.methods.push(methodItm);
+                methodArray.splice(i, 1);
+                i--;
+                len--;
+            }
+        }
+    },
+    arrangeClass : function () {
+        var classArray = DocArranger.woods.class,
+            parentItm;
+        for (var i = 0, len = classArray.length, classItm; i < len; i++) {
+            classItm = classArray[i];
+            parentItm = DocArranger._getParent(classItm);
+            if (parentItm) {
+                if (!parentItm.classes) {
+                    parentItm.classes = [];
+                }
+                parentItm.classes.push(classItm);
+                classArray.splice(i, 1);
+                i--;
+                len--;
+            }
+        }
+    }
+};
 exports.parse = docParser.parse;

@@ -4,7 +4,13 @@
  */
 define(function (require, exports, module) {
     'use strict';
+    /**
+     * Bank Robber hepler
+     * @module M_BankRobber_helper
+     */
+    var helper = {
 
+    };
     /**
      * try to sleep
      * @belong M_BankRobber

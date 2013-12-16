@@ -7,7 +7,9 @@
  */
 'use strict';
 
-var configObj = {};
+var configObj = {
+    tplPath: './theme/'
+};
 
 exports.init = function (userConfig) {
     for (var key in userConfig) {
