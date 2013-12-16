@@ -211,6 +211,94 @@ var docParser = {
         });
         return parseResult;
     },
+    _arrangeModule: function (moduleArray, classArray, methodArray) {
+        moduleArray.forEach(function (mod) {
+            if (classArray) {
+                docParser._arrangeClass(classArray, methodArray, function (cls) {
+                    if (cls.belong === mod.name) {
+                        if (!mod.classes) {
+                            mod.classes = [];
+                        }
+                        mod.classes.push(cls);
+                    }
+                });
+            } else {
+                methodArray.forEach(function (method) {
+                    if (method.belong === mod.name) {
+                        if (!mod.methods) {
+                            mod.methods = [];
+                        }
+                        mod.methods.push(method);
+                    }
+                });
+            }
+        });
+    },
+    _arrangeClass: function (classArray, methodArray, process) {
+        classArray.forEach(function (cls) {
+            process && process(cls);
+            methodArray.forEach(function (method) {
+                if (method.belong === cls.name) {
+                    if (!cls.methods) {
+                        cls.methods = [];
+                    }
+                    cls.methods.push(method);
+                }
+            });
+        });
+    },
+    /**
+     * arrange parse result
+     * Module
+     *   |__Class(consturctor)
+     *        |___method
+     *
+     * @param  {Array} parseResultArray parse result
+     * @return {Array}
+     */
+    arrangeParseResult: function (parseResultArray) {
+        var arrangedResult,
+            woods = {
+                'module': [],
+                'class': [],
+                'method': []
+            };
+
+        parseResultArray.forEach(function (itm) {
+            var wood = woods[itm.type];
+            if (wood) {
+                wood.push(itm);
+            }
+        });
+        var moduleArray = woods.module,
+            methodArray = woods.method,
+            classArray = woods.class;
+
+        if (moduleArray.length > 0) {
+            //have module and class
+            if (classArray.length > 0) {
+                docParser._arrangeModule(moduleArray, classArray, methodArray);
+            }
+            //has module but has no class
+            else {
+                docParser._arrangeModule(moduleArray, null, methodArray);
+            }
+            arrangedResult = moduleArray;
+        } 
+        //has no module
+        else {
+            //have no module but has class
+            if (classArray.length > 0) {
+                docParser._arrangeClass(classArray, methodArray);
+                arrangedResult = classArray;
+            }
+            //has no module and no class, don't need to arrange
+            else {
+                arrangedResult = parseResultArray;
+            }
+        }
+        return arrangedResult;
+    },
     parse: function (fileName, fileContent) {
         /*
             [{
@@ -237,7 +325,7 @@ var docParser = {
         } else {
             console.warn('can\'t find comment in this file'.red);
         }
-        return parseResultObjectArray;
+        return docParser.arrangeParseResult(parseResultObjectArray);
     }
 };
 

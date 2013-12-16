@@ -1,12 +1,13 @@
 /**
  * Bank Robber
- * @module BankRobber
+ * @module M_BankRobber
  */
 define(function (require, exports, module) {
     'use strict';
 
     /**
      * try to sleep
+     * @belong M_BankRobber
      * @return {Boolean} true/false
      */
     function tryToSleep() {
@@ -15,6 +16,7 @@ define(function (require, exports, module) {
     /**
      * Bank Robber
      * @Class BankRobber
+     * @belong M_BankRobber
      * @constructor
      */
     var BankRobber = function (name, car, gun) {
@@ -61,6 +63,7 @@ define(function (require, exports, module) {
 
     /**
      * gun fire
+     * @belong BankRobber
      * @return {BankRobber} robber self
      */
     BankRobber.prototype.fire = function () {
