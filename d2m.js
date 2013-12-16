@@ -9,6 +9,8 @@
 var fs = require('fs'),
     colors = require('colors'),
     docParser = require('./docParser'),
+    md = require('./md'),
+    config = require('./config'),
     CHATSET_UTF_8 = 'utf8',
     d2m = {};
 
@@ -29,6 +31,7 @@ function parseFile(fileName, fileContent) {
     console.log(fileContent.grey.italic);
     var parseResult = docParser.parse(fileName, fileContent);
     console.log(parseResult);
+    md(fileName, parseResult);
 }
 
 function processFile(filePath, fileProcessor) {
@@ -72,8 +75,10 @@ function processPath(path, fileProcessor) {
  * @return {this}
  */
 d2m.config = function (options) {
-    d2m.srcDir = options.src;
-    d2m.outputDir = options.output;
+    config.init({
+        srcDir : options.src,
+        outputDir : options.output
+    });
     return d2m;
 };
 
@@ -83,11 +88,12 @@ d2m.config = function (options) {
  */
 d2m.generate = function () {
     console.log('generate...'.green);
-    var stats = fs.statSync(d2m.srcDir);
+    var srcDir = config.get('srcDir');
+    var stats = fs.statSync(srcDir);
     if (stats.isFile()) {
-        processFile(d2m.srcDir, parseFile);
+        processFile(srcDir, parseFile);
     } else if (stats.isDirectory()) {
-        processPath(d2m.srcDir, parseFile);
+        processPath(srcDir, parseFile);
     } else {
         console.error('src config is wrong, please check');
     }
