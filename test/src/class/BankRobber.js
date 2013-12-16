@@ -1,5 +1,5 @@
 /**
- * Bank Robber
+ * Bank Robber, this module inclue one class and one inner module
  * @module M_BankRobber
  */
 define(function (require, exports, module) {

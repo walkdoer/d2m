@@ -162,7 +162,9 @@ var docParser = {
         }
         if (methodCharactor === 'private') {
             result.private = true;
+            result.public = false;
         } else {
+            result.private = false;
             result.public = true;
         }
         if (params) {
