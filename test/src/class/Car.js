@@ -25,5 +25,26 @@ define(function (require, exports, module) {
         this._startEngine();
         //...run
     };
+    /**
+     * [test1 description]
+     * @param  {[type]} a [description]
+     * @param  {[type]} b [description]
+     * @param  {[type]} c [description]
+     * @return {[type]}   [description]
+     */
+    function test1(a, b, c) {
+
+    } 
+
+
+    /**
+     * [test2 description]
+     * @param  {[type]} kk [description]
+     * @param  {[type]} bb [description]
+     * @return {[type]}    [description]
+     */
+    function test2(kk, bb) {
+
+    }
     return Car;
 });

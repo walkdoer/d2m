@@ -1,7 +1,8 @@
-a  `public`  
-================================
+BankRooberStory  `public`   *`Module`*
+===================================
 <!--module description-->
-@module a bank robber&#39;s story  
+this is a story about a bank robber. he rob money,
+ he kill cops, and finnaly go to prison  
 
 <!-- methods -->
 Methods
@@ -18,5 +19,9 @@ no classes.
 ---
 <!-- end of  class list-->
 
+<!-- start of class list-->
 
-*This file is generate from ./test/src//story.js at Mon Dec 16 2013 23:03:42 GMT+0800 (CST)*
+
+
+
+*This file is generate from ./test/src//story.js at Tue Dec 17 2013 15:45:05 GMT+0800 (CST)*

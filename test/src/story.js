@@ -1,5 +1,7 @@
 /**
- * @module a bank robber's story
+ * this is a story about a bank robber. he rob money,
+ * he kill cops, and finnaly go to prison
+ * @module BankRooberStory
  * @author zhangmh
  */
 define(function (require, exports, module) {

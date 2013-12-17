@@ -1,6 +1,6 @@
 {{#moduleList}}
-{{name}} {{#public}} `public` {{/public}} {{#private}} `private` {{/private}}
-================================
+{{name}} {{#public}} `public` {{/public}} {{#private}} `private` {{/private}} *`Module`*
+===================================
 <!--module description-->
 {{description}}  
 
@@ -11,7 +11,7 @@ Methods
 {{#methods}}
 + ###{{name}} {{#public}} `public` {{/public}} {{#private}}`private` {{/private}}`method`
 {{description}}  
-###Params<!--start of param list -->
+#####*Params*<!--start of param list -->
 {{#params}}
 + {{name}}`{{type}}`  {{description}}
 {{/params}}
@@ -37,7 +37,7 @@ no method.
 {{#methods}}
 + ###{{name}} {{#public}} `public` {{/public}} {{#private}} `private` {{/private}}  
 {{description}}
-###Params<!--start of param list -->
+#####*Params*<!--start of param list -->
 {{#params}}
     + {{name}}`{{type}}`  {{description}}
 {{/params}}
@@ -58,6 +58,45 @@ no classes.
 ---
 <!-- end of  class list-->
 {{/moduleList}}
+
+<!-- start of class list-->
+{{#classList}}
+### {{name}} *`Class`*
+<!-- class description -->
+{{description}}
+<!-- start of class method list -->
+###Methods
+{{#methods}}
++ ###{{name}} {{#public}} `public` {{/public}} {{#private}} `private` {{/private}}  
+{{description}}
+###Params<!--start of param list -->
+{{#params}}
+    + {{name}}`{{type}}`  {{description}}
+{{/params}}
+{{^params}}
+no params
+{{/params}}
+<!-- end of param list -->
+{{/methods}}
+{{^methods}}
+no method.
+{{/methods}}
+<!-- end of class method list -->
+{{/classList}}
+
+
+{{#methodList}}
+###{{name}} {{#public}} `public` {{/public}} {{#private}} `private` {{/private}}  *`Method`*
+{{description}}
+#####*Params*<!--start of param list -->
+{{#params}}
++ {{name}}`{{type}}`  {{description}}
+{{/params}}
+{{^params}}
+no params
+{{/params}}
+<!-- end of param list -->
+{{/methodList}}
 
 
 *This file is generate from {{{filePath}}} at {{createTime}}*

@@ -25,4 +25,31 @@ define(function (require, exports, module) {
         //reload process
         return this;
     };
+
+
+    /**
+     * Tool
+     * @Class Tool
+     * @constructor
+     */
+    var Tool = function (name) {
+        this.name = name;
+    };
+    /**
+     * fire
+     * @return {Tool} self
+     */
+    Tool.prototype.fire = function () {
+        //fire process
+        return this;
+    };
+
+    /**
+     * reload the gun
+     * @return {Tool}  self
+     */
+    Tool.prototype.reload = function () {
+        //reload process
+        return this;
+    };
 });
