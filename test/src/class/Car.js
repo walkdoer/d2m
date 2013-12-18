@@ -11,6 +11,7 @@ define(function (require, exports, module) {
     /**
      * start the engine of the car
      * @private
+     * @belong Car
      * @return {Boolean}  the result of the start operation
      */
     Car.prototype._startEngine = function () {

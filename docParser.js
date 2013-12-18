@@ -148,6 +148,20 @@ var docParser = {
     _getModuleName: function (comment) {
         return helper.getTargetFromComment(comment, RE_MODULE_NAME);
     },
+    _getFullMethodName: function (funName, params) {
+        var result = funName + ' (';
+        for (var key in params) {
+            if (params.hasOwnProperty(key)) {
+                result += params[key].name + ', ';
+            }
+        }
+        var pos = result.lastIndexOf(', ');
+        if (pos > -1) {
+            result = result.substr(0, pos);
+        }
+        result += ')';
+        return result;
+    },
     parseDocBlock: function (comment) {
         var description = docParser._getDescription(comment),
             params = docParser._getParams(comment),
@@ -157,6 +171,7 @@ var docParser = {
                 type: docParser._getDocType(comment),
                 description: description
             };
+        result.fullMethodName = docParser._getFullMethodName(result.name, params);
         if (result.type === TYPE_MODULE) {
             result.name = docParser._getModuleName(comment);
         }
