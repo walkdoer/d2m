@@ -64,4 +64,4 @@ no classes.
 
 
 ---
-`*./test/docs/BankRobber.md` is generate from `./test/src/class/BankRobber.js` at Wed Dec 18 2013 21:30:16 GMT+0800 (CST)*
+`*./test/docs/BankRobber.md` is generate from `./test/src/class/BankRobber.js` at Wed Dec 18 2013 21:51:04 GMT+0800 (CST)*

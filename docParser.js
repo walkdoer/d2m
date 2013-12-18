@@ -126,6 +126,11 @@ var docParser = {
         var isPrivateMethod = ~comment.indexOf('@private');
         return isPrivateMethod ? 'private' : 'public';
     },
+    /**
+     * get method name
+     * @param  {String} comment
+     * @return {String} function name
+     */
     _getMethodName: function (comment) {
         var index = docParser.fileContent.indexOf(comment),
             content = docParser.fileContent.substr(index + comment.length);
@@ -141,9 +146,6 @@ var docParser = {
             console.error('invalid method name'.red);
         }
         return null;
-    },
-    _getBelong: function () {
-        return '';
     },
     _getModuleName: function (comment) {
         return helper.getTargetFromComment(comment, RE_MODULE_NAME);

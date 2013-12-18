@@ -1,7 +1,12 @@
 define(function (require, exports, module) {
     'use strict';
     /**
-     * Car
+     * An automobile, autocar, motor car or car is a wheeled motor vehicle 
+     * used for transporting passengers, which also carries its own engine 
+     * or motor. Most definitions of the term specify that automobiles are designed 
+     * to run primarily on roads, to have seating for one to eight people, to typically 
+     * have four wheels, and to be constructed principally for 
+     * the transport of people rather than goods.[3]
      * @param {Number} speed the max speed of the car
      * @constructor
      */
@@ -18,7 +23,8 @@ define(function (require, exports, module) {
         return this.engine.start();
     };
     /**
-     * run the car
+     * use this method, you can start the engine and run the car
+     * @belong Car
      * @return {[type]} [description]
      */
     Car.prototype.run = function () {

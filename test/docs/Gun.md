@@ -1,15 +1,21 @@
 
 
-### Gun *`Class`*
+### Gun () *`Class`*
 
 Gun
-####*Method*
+
+####*Params*
+
+####*Methods*
 
 no method.
-### Tool *`Class`*
+### Tool () *`Class`*
 
 Tool
-####*Method*
+
+####*Params*
+
+####*Methods*
 
 no method.
 
@@ -36,4 +42,4 @@ no params
 
 
 ---
-`*./test/docs/Gun.md` is generate from `./test/src/class/Gun.js` at Wed Dec 18 2013 21:30:16 GMT+0800 (CST)*
+`*./test/docs/Gun.md` is generate from `./test/src/class/Gun.js` at Wed Dec 18 2013 21:51:04 GMT+0800 (CST)*

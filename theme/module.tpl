@@ -57,9 +57,15 @@ no classes.
 
 
 {{#classList}}
-### {{name}} *`Class`*
+### {{fullMethodName}} *`Class`*
 
 {{description}}
+
+####*Params*
+{{#params}}
++ {{name}} Type: `{{type}}`  {{description}}
+{{/params}}
+
 ####*Methods*
 {{#methods}}
 + ####{{fullMethodName}} {{#public}} `public` {{/public}} {{#private}} `private` {{/private}}  
