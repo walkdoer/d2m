@@ -11,4 +11,4 @@ no method.
 
 
 
-*This file is generate from ./test/src//class/Bank.js at Tue Dec 17 2013 15:45:05 GMT+0800 (CST)*
+*.&#x2F;test&#x2F;docs&#x2F;Bank.md is generate from ./test/src/class/Bank.js at Wed Dec 18 2013 19:31:34 GMT+0800 (CST)*

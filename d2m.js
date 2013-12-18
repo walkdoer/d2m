@@ -10,6 +10,7 @@ var fs = require('fs'),
     colors = require('colors'),
     docParser = require('./docParser'),
     md = require('./md'),
+    util = require('./util'),
     config = require('./config'),
     CHATSET_UTF_8 = 'utf8',
     d2m = {};
@@ -50,6 +51,7 @@ function processFile(filePath, fileProcessor) {
 }
 
 function processPath(path, fileProcessor) {
+    path = util.fixFolderPath(path);
     fs.readdir(path, function (err, files) {
         if (err) {
             throw err;
@@ -57,7 +59,7 @@ function processPath(path, fileProcessor) {
         files.forEach(function (itm) {
             //will not process the file start with "."  eg  .DS_Store
             if (itm.indexOf('.') === 0) { return; }
-            var filePath = path + '/' + itm,
+            var filePath = path + itm,
                 stats = fs.statSync(filePath);
             if (stats.isFile()) {
                 processFile(filePath, fileProcessor);
@@ -83,12 +85,10 @@ d2m.config = function (options) {
         outputStats = fs.statSync(output);
 
     if (srcStats.isDirectory()) {
-        src = new String(src),
-        src += src[src.length] === '/' ? '' : '/';
+        src = util.fixFolderPath(src);
     }
     if (outputStats.isDirectory()) {
-        output = new String(output);
-        output += output[output.length] === '/' ? '' : '/';
+        output = util.fixFolderPath(output);
     }
     config.init({
         srcDir : src,

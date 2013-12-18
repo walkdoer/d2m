@@ -6,11 +6,13 @@
  * Licensed under the MIT license.
  */
 'use strict';
-var fs = require('fs'),
+var _ = require('underscore'),
+    fs = require('fs'),
     colors = require('colors'),
     config = require('./config'),
     Mustache = require('mustache'),
-    CHATSET_UTF_8 = 'utf8';
+    CHATSET_UTF_8 = 'utf8',
+    FILE_EXT_MD = 'md';
 /**
  * get filename from file path
  * @param  {String} filePath  file path
@@ -42,11 +44,19 @@ function loadTemplate(tplFileName, callback) {
 }
 
 exports.md = function (filePath, docObject) {
-    var fileName = getFileName(filePath) + '.md',
+    var orginFileName = getFileName(filePath),
+        fileName = [orginFileName, FILE_EXT_MD].join('.'),
         docPath = config.get('outputDir'),
-        fullFilePath = docPath + fileName;
+        fullFilePath = docPath + fileName,
+        copyObj = {};
+
+    _.extend(copyObj, docObject);
+    copyObj._targetFilePath = fullFilePath;
+    copyObj._targetFileName = fileName;
+    copyObj._srcFilePath = filePath;
+    copyObj._srcFileName = orginFileName;
     loadTemplate('module.tpl', function (data) {
-        var content = Mustache.render(data, docObject);
+        var content = Mustache.render(data, copyObj);
         fs.open(fullFilePath, 'w', function (err, fd) {
             fs.write(fd, content, 0, CHATSET_UTF_8, function (err) {
                 if (err) {

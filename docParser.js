@@ -195,7 +195,7 @@ var docParser = {
         files.forEach(function (itm) {
             if (itm.indexOf('.') === 0) {
                 return;
-            }
+            }  
             //if it's a javascript file
             if (/^.*.js$/.test(itm)) {
                 var plugin = require(PLUGIN_PATH + itm);
@@ -213,42 +213,6 @@ var docParser = {
         });
         return parseResult;
     },
-    // _arrangeModule: function (moduleArray, classArray, methodArray) {
-    //     moduleArray.forEach(function (mod) {
-    //         if (classArray) {
-    //             docParser._arrangeClass(classArray, methodArray, function (cls) {
-    //                 if (cls.belong === mod.name) {
-    //                     if (!mod.classes) {
-    //                         mod.classes = [];
-    //                     }
-    //                     mod.classes.push(cls);
-    //                 }
-    //             });
-    //         } else {
-    //             methodArray.forEach(function (method) {
-    //                 if (method.belong === mod.name) {
-    //                     if (!mod.methods) {
-    //                         mod.methods = [];
-    //                     }
-    //                     mod.methods.push(method);
-    //                 }
-    //             });
-    //         }
-    //     });
-    // },
-    // _arrangeClass: function (classArray, methodArray, process) {
-    //     classArray.forEach(function (cls) {
-    //         process && process(cls);
-    //         methodArray.forEach(function (method) {
-    //             if (method.belong === cls.name) {
-    //                 if (!cls.methods) {
-    //                     cls.methods = [];
-    //                 }
-    //                 cls.methods.push(method);
-    //             }
-    //         });
-    //     });
-    // },
     /**
      * arrange parse result
      * Module
